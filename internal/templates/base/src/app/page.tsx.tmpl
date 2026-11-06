@@ -1,0 +1,5 @@
+import Link from "next/link";
+__MOTION_IMPORT__
+export default function Home() {
+ return <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center gap-6 p-8">__MOTION_OPEN__<p className="font-mono text-sm text-muted-foreground">Ready for your next idea</p><h1 className="text-4xl font-semibold tracking-tight">__APP_NAME__</h1><p>Your Next.js app is ready. Create an account to try your protected dashboard.</p><nav className="flex gap-6"><Link className="underline" href="/sign-up">Create account</Link><Link className="underline" href="/sign-in">Sign in</Link></nav>__MOTION_CLOSE__</main>;
+}

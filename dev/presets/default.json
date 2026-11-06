@@ -1,0 +1,5 @@
+{
+  "name": "preview-app",
+  "packageManager": "bun",
+  "oauth": ["google", "github"]
+}

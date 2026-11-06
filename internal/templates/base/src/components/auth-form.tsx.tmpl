@@ -1,0 +1,23 @@
+"use client";
+import { useActionState } from "react";
+import Link from "next/link";
+import { authenticate } from "@/app/(auth)/actions";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { authClient } from "@/lib/auth-client";
+__SOCIAL_LOGO_IMPORTS__
+type Social = { id: "google" | "github"; label: string; ready: boolean };
+export function AuthForm({ mode, social }: { mode: "sign-in" | "sign-up"; social: Social[] }) {
+ const action = authenticate.bind(null, mode);
+ const [state, formAction, pending] = useActionState(action, { error: "" });
+ const signup = mode === "sign-up";
+ return <main className="flex min-h-screen items-center justify-center p-6"><Card className="w-full max-w-sm"><CardHeader><CardTitle>{signup ? "Create an account" : "Welcome back"}</CardTitle></CardHeader><CardContent className="space-y-4"><form action={formAction} className="space-y-4">
+ {signup && <div className="space-y-2"><Label htmlFor="name">Name</Label><Input id="name" name="name" autoComplete="name" required /></div>}
+ <div className="space-y-2"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" autoComplete="email" required /></div>
+ <div className="space-y-2"><Label htmlFor="password">Password</Label><Input id="password" name="password" type="password" minLength={8} autoComplete={signup ? "new-password" : "current-password"} required /></div>
+ {state.error && <p role="alert" className="text-sm text-destructive">{state.error}</p>}
+ <Button className="w-full" type="submit" disabled={pending}>{pending ? "Please wait…" : signup ? "Create account" : "Sign in"}</Button>
+ </form>{social.map(provider => <div key={provider.id}><Button className="w-full" variant="outline" disabled={!provider.ready || pending} onClick={async () => { await authClient.signIn.social({ provider: provider.id, callbackURL: "/dashboard" }); }}>__SOCIAL_LOGOS__Continue with {provider.label}</Button>{!provider.ready && <p className="mt-1 text-xs text-muted-foreground">Add {provider.label} credentials to .env to enable sign-in.</p>}</div>)}<p className="text-sm"><Link className="underline" href={signup ? "/sign-in" : "/sign-up"}>{signup ? "Already have an account? Sign in" : "Create an account"}</Link></p></CardContent></Card></main>;
+}

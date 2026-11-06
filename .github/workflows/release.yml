@@ -1,0 +1,56 @@
+name: Prepare release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Require successful checks for this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          node --input-type=module -e '
+          import {execFileSync} from "node:child_process";
+          for (const workflow of ["package.yml", "integration.yml"]) {
+            const runs = JSON.parse(execFileSync("gh", ["run", "list", "--commit", process.env.RELEASE_SHA, "--workflow", workflow, "--limit", "1", "--json", "headSha,status,conclusion"], {encoding:"utf8"}));
+            if (runs.length !== 1 || runs[0].headSha !== process.env.RELEASE_SHA || runs[0].status !== "completed" || runs[0].conclusion !== "success") throw new Error(`${workflow} must pass on the release commit before tagging`);
+          }
+          '
+      - name: Validate release version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          node --input-type=module -e '
+          import fs from "node:fs";
+          const p = JSON.parse(fs.readFileSync("npm/better-scaffold/package.json", "utf8"));
+          if (process.env.RELEASE_TAG !== `v${p.version}`) throw new Error("Tag must match the npm package version");
+          '
+      - run: go test ./...
+      - run: go vet ./...
+      - run: node --test scripts/package.test.mjs scripts/notices.test.mjs
+      - run: node scripts/package.mjs --all
+      - name: Check host binary
+        run: |
+          node dist/npm/better-scaffold/bin/better-scaffold.cjs --version
+          node dist/npm/better-scaffold/bin/better-scaffold.cjs init --help
+      - name: Create checksums
+        run: sha256sum dist/*.tgz > dist/checksums.txt
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: gh release create "$RELEASE_TAG" dist/*.tgz dist/checksums.txt --draft --verify-tag --title "$RELEASE_TAG" --generate-notes

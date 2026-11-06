@@ -1,0 +1,11 @@
+/bin/
+/better-scaffold
+/dist/
+/.preview/
+/fuck/
+/foo.md
+.env
+.env.*
+!.env.example
+node_modules/
+.next/

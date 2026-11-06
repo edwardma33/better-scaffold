@@ -1,0 +1,14 @@
+{
+  "name": "better-scaffold",
+  "version": "0.1.0",
+  "description": "An interactive Next.js scaffolder with authentication, database, payments, and AI batteries.",
+  "private": true,
+  "license": "MIT",
+  "engines": { "node": ">=22" },
+  "bin": { "better-scaffold": "bin/better-scaffold.cjs" },
+  "files": ["bin/", "native/", "README.md", "LICENSE", "third-party/"],
+  "repository": { "type": "git", "url": "git+https://github.com/edwardma33/better-scaffold.git" },
+  "homepage": "https://github.com/edwardma33/better-scaffold#readme",
+  "bugs": { "url": "https://github.com/edwardma33/better-scaffold/issues" },
+  "keywords": ["nextjs", "scaffold", "cli", "tui", "better-auth"]
+}

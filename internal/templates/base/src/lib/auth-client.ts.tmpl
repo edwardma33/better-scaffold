@@ -1,0 +1,4 @@
+"use client";
+import { createAuthClient } from "better-auth/react";
+__PAYMENT_CLIENT_IMPORT__
+export const authClient = createAuthClient({ plugins: [__PAYMENT_CLIENT_PLUGIN__] });

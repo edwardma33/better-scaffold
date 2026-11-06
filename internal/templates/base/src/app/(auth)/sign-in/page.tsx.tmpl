@@ -1,0 +1,4 @@
+import { AuthForm } from "@/components/auth-form";
+import { socialProviders } from "@/lib/social";
+export const dynamic = "force-dynamic";
+export default function Page() { return <AuthForm mode="sign-in" social={socialProviders} />; }

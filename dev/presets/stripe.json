@@ -1,0 +1,10 @@
+{
+  "name": "preview-stripe",
+  "packageManager": "bun",
+  "payments": "stripe",
+  "ai": "anthropic",
+  "oauth": ["google", "github"],
+  "elysia": true,
+  "query": true,
+  "zod": true
+}

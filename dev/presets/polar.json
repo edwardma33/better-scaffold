@@ -1,0 +1,9 @@
+{
+  "name": "preview-polar",
+  "packageManager": "bun",
+  "payments": "polar",
+  "ai": "openai",
+  "oauth": ["google", "github"],
+  "motion": true,
+  "zod": true
+}
