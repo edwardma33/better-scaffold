@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-//go:embed all:base
+//go:embed all:base all:assets
 var source embed.FS
 
 func Files(c config.Config) (map[string]string, error) {
@@ -27,12 +27,28 @@ func Files(c config.Config) (map[string]string, error) {
 			label = "GitHub"
 		}
 		env += upper + "_CLIENT_ID=\n" + upper + "_CLIENT_SECRET=\n"
-		component := "Google"
+		assets := []string{"google.tsx"}
 		if provider == "github" {
-			component = "Github"
+			assets = []string{"githubLight.tsx", "githubDark.tsx"}
 		}
-		replacements["__SOCIAL_LOGO_IMPORTS__"] += fmt.Sprintf("import { %s } from \"@/components/ui/svgs/%s\";\n", component, provider)
-		replacements["__SOCIAL_LOGOS__"] += fmt.Sprintf("{provider.id === %q && <%s aria-hidden=\"true\" className=\"size-4 shrink-0\" />}", provider, component)
+		for _, asset := range append(assets, "SVGL-LICENSE") {
+			data, err := source.ReadFile("assets/" + asset)
+			if err != nil {
+				return nil, err
+			}
+			target := "src/components/ui/svgs/" + asset
+			if asset == "SVGL-LICENSE" {
+				target = asset
+			}
+			out[target] = string(data)
+		}
+		if provider == "google" {
+			replacements["__SOCIAL_LOGO_IMPORTS__"] += "import { Google } from \"@/components/ui/svgs/google\";\n"
+			replacements["__SOCIAL_LOGOS__"] += `{provider.id === "google" && <Google aria-hidden="true" className="size-4 shrink-0" />}`
+		} else {
+			replacements["__SOCIAL_LOGO_IMPORTS__"] += "import { GithubLight } from \"@/components/ui/svgs/githubLight\";\nimport { GithubDark } from \"@/components/ui/svgs/githubDark\";\n"
+			replacements["__SOCIAL_LOGOS__"] += `{provider.id === "github" && <><GithubLight aria-hidden="true" className="size-4 shrink-0 dark:hidden" /><GithubDark aria-hidden="true" className="hidden size-4 shrink-0 dark:block" /></>}`
+		}
 		replacements["__SOCIAL_CONFIG__"] += fmt.Sprintf("...(process.env.%s_CLIENT_ID && process.env.%s_CLIENT_SECRET ? { %s: { clientId: process.env.%s_CLIENT_ID, clientSecret: process.env.%s_CLIENT_SECRET } } : {}),", upper, upper, provider, upper, upper)
 		replacements["__SOCIAL_BUTTONS__"] += fmt.Sprintf("{ id: %q, label: %q, ready: Boolean(process.env.%s_CLIENT_ID && process.env.%s_CLIENT_SECRET) },", provider, label, upper, upper)
 		replacements["__SOCIAL_DOCS__"] += fmt.Sprintf("Create a %s OAuth application. Set `%s_CLIENT_ID` and `%s_CLIENT_SECRET` in `.env`. Register `http://localhost:3000/api/auth/callback/%s` as its callback URL. Restart the dev server after changing credentials.\n\n", label, upper, upper, provider)

@@ -48,3 +48,30 @@ func TestGeneratedCombinations(t *testing.T) {
 		}
 	}
 }
+
+func TestSocialLogosAreIncludedWithSelectedProviders(t *testing.T) {
+	for _, providers := range [][]string{nil, {"google"}, {"github"}, {"google", "github"}} {
+		c := config.Config{Name: "app", Directory: "app", PackageManager: "bun", Payments: "none", AI: "none", OAuth: providers}
+		files, err := templates.Files(c)
+		if err != nil {
+			t.Fatal(err)
+		}
+		form := files["src/components/auth-form.tsx"]
+		for _, item := range []struct{ provider, name string }{{"google", "google"}, {"github", "githubLight"}, {"github", "githubDark"}} {
+			selected := false
+			for _, provider := range providers {
+				selected = selected || provider == item.provider
+			}
+			_, included := files["src/components/ui/svgs/"+item.name+".tsx"]
+			if included != selected || strings.Contains(form, "svgs/"+item.name) != selected {
+				t.Fatalf("%s selection mismatch for %v", item.name, providers)
+			}
+		}
+		if strings.Contains(form, "Wordmark") {
+			t.Fatal("wordmark included in social buttons")
+		}
+		if (files["SVGL-LICENSE"] != "") != (len(providers) > 0) {
+			t.Fatal("missing SVGL license notice")
+		}
+	}
+}

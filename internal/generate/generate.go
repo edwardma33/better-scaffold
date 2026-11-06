@@ -132,9 +132,6 @@ func run(ctx context.Context, c config.Config, progress func(string), render fun
 		cmd   command
 	}{"Initializing shadcn", tool(c.PackageManager, "shadcn@"+ShadcnVersion, init...)})
 	add := []string{"add", "--yes", "card", "button", "input", "label"}
-	for _, p := range c.OAuth {
-		add = append(add, "@svgl/"+p)
-	}
 	commands = append(commands, struct {
 		label string
 		cmd   command

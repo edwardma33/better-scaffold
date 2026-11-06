@@ -117,17 +117,6 @@ func sync(ctx context.Context, c config.Config, render func(config.Config) (map[
 				return err
 			}
 		}
-		added := []string{"add", "--yes"}
-		for _, provider := range c.OAuth {
-			if !contains(previous.OAuth, provider) {
-				added = append(added, "@svgl/"+provider)
-			}
-		}
-		if len(added) > 2 {
-			if err = shadcn(ctx, c, exec, added...); err != nil {
-				return err
-			}
-		}
 	}
 	oldSchema, _ := os.ReadFile(filepath.Join(c.Directory, ".preview-schema"))
 	if !previous.Ready || string(oldSchema) != files["src/db/schema.ts"] {
@@ -284,14 +273,6 @@ func save(dir string, s state) error {
 	}
 	return write(dir, marker, string(raw))
 }
-func contains(values []string, want string) bool {
-	for _, v := range values {
-		if v == want {
-			return true
-		}
-	}
-	return false
-}
 func run(ctx context.Context, dir, name string, args ...string) error {
 	cmd := exec.CommandContext(ctx, name, args...)
 	cmd.Dir = dir
@@ -316,8 +297,5 @@ func shadcn(ctx context.Context, c config.Config, exec runner, args ...string) e
 }
 func installUI(ctx context.Context, c config.Config, exec runner) error {
 	args := []string{"add", "--yes", "card", "button", "input", "label"}
-	for _, p := range c.OAuth {
-		args = append(args, "@svgl/"+p)
-	}
 	return shadcn(ctx, c, exec, args...)
 }
