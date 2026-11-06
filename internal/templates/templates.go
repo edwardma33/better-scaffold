@@ -54,7 +54,7 @@ func Files(c config.Config) (map[string]string, error) {
 		replacements["__SOCIAL_DOCS__"] += fmt.Sprintf("Create a %s OAuth application. Set `%s_CLIENT_ID` and `%s_CLIENT_SECRET` in `.env`. Register `http://localhost:3000/api/auth/callback/%s` as its callback URL. Restart the dev server after changing credentials.\n\n", label, upper, upper, provider)
 	}
 	if c.Payments == "stripe" {
-		deps["@better-auth/stripe"] = "1.6.29"
+		deps["@better-auth/stripe"] = "1.7.17"
 		deps["stripe"] = "22.0.0"
 		replacements["__STRIPE_CUSTOMER__"] = `stripeCustomerId: text("stripe_customer_id"),`
 		replacements["__STRIPE_SCHEMA__"] = `export const subscription = pgTable("subscription", { id: text("id").primaryKey(), plan: text("plan").notNull(), referenceId: text("reference_id").notNull(), stripeCustomerId: text("stripe_customer_id"), stripeSubscriptionId: text("stripe_subscription_id"), status: text("status").default("incomplete"), periodStart: timestamp("period_start"), periodEnd: timestamp("period_end"), cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false), cancelAt: timestamp("cancel_at"), canceledAt: timestamp("canceled_at"), endedAt: timestamp("ended_at"), seats: integer("seats"), trialStart: timestamp("trial_start"), trialEnd: timestamp("trial_end"), billingInterval: text("billing_interval"), stripeScheduleId: text("stripe_schedule_id") });`
